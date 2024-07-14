@@ -16,7 +16,7 @@ function LoginPage() {
       email: data.get('email'),
       password: data.get('password'),
     });
-    navigate('/chat');
+    navigate('/mediator');
   };
 
   return (
