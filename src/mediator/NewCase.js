@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Container, Box, TextField, Button, Typography, Modal, Grid, MenuItem, Table, TableBody, TableCell, TableHead, TableRow, Paper, IconButton } from '@mui/material';
+import { Container, Box, TextField, Button, Typography, Modal, MenuItem, Table, TableBody, TableCell, TableHead, TableRow, Paper, IconButton, Stack } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 
-const roles = ['Petitioner', 'Accused', 'Witness'];
+const roles = ['petitioner', 'respondent', 'jury'];
 
 function NewCase() {
   const [caseSummary, setCaseSummary] = useState('');
@@ -28,9 +28,15 @@ function NewCase() {
   return (
     <Container maxWidth="md">
       <Box sx={{ mt: 4 }}>
+      <Stack direction="row" justifyContent="space-between">
         <Typography variant="h4" gutterBottom>
           New Case
         </Typography>
+        <Button variant="contained" color="primary" onClick={handleOpen}>
+          Register Case
+        </Button>
+        </Stack>
+        <br/>
         <TextField
           label="Case Summary"
           multiline
@@ -44,6 +50,8 @@ function NewCase() {
         <Button variant="contained" color="primary" onClick={handleOpen}>
           Add Parties
         </Button>
+
+        
         <Modal
           open={open}
           onClose={handleClose}
@@ -98,6 +106,8 @@ function NewCase() {
             </Button>
           </Box>
         </Modal>
+
+
         <Paper sx={{ mt: 4 }}>
           <Table>
             <TableHead>
@@ -126,6 +136,8 @@ function NewCase() {
             </TableBody>
           </Table>
         </Paper>
+
+
       </Box>
     </Container>
   );
