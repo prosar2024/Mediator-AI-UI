@@ -10,6 +10,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/chat" element={<AIChat />} />
+      <Route path="/pchat/:conversation_id" element={<PartyiInitiatedChat />} />
       <Route path="/pchat" element={<PartyiInitiatedChat />} />
       <Route path="/mediator" element={<Mediator />} />
       

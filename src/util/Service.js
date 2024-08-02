@@ -1,11 +1,6 @@
-import axios from 'axios';
-
-class ApiService {
-    static username = 'aravind';
-    static password = 'password';
+export default class ApiService {
     static headers = {
         'Content-Type': 'application/json',
-        'token': 'fefgd0rfg-rg34td-gsdgsd-t23rfwgsdg34-vwv43v-4v4wsgfvhrty34-srhtryh'
     };
 
     /**
@@ -16,14 +11,15 @@ class ApiService {
      */
     static async getRequest(url) {
         try {
-            const response = await axios.get(url, {
+            const response = await fetch(url, {
+                method: 'GET',
                 headers: ApiService.headers,
-                auth: {
-                    username: ApiService.username,
-                    password: ApiService.password
-                }
             });
-            return response.data;
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            const data = await response.json();
+            return data;
         } catch (error) {
             console.error('Error making GET request:', error);
             throw error;
@@ -39,43 +35,19 @@ class ApiService {
      */
     static async postRequest(url, requestData) {
         try {
-            const response = await axios.post(url, requestData, {
+            const response = await fetch(url, {
+                method: 'POST',
                 headers: ApiService.headers,
-                auth: {
-                    username: ApiService.username,
-                    password: ApiService.password
-                }
+                body: JSON.stringify(requestData),
             });
-            return response.data;
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            const data = await response.json();
+            return data;
         } catch (error) {
             console.error('Error making POST request:', error);
             throw error;
         }
     }
 }
-
-/* Usage example:
-const getUrl = 'https://example.com/api/data';
-const postUrl = 'https://example.com/api/messages';
-const postData = {
-    message: 'Hello, this is a test message',
-    sender: 'Alene'
-};
-
-ApiService.getRequest(getUrl)
-    .then(response => {
-        console.log('GET Response received:', response);
-    })
-    .catch(error => {
-        console.error('GET Error:', error);
-    });
-
-ApiService.postRequest(postUrl, postData)
-    .then(response => {
-        console.log('POST Response received:', response);
-    })
-    .catch(error => {
-        console.error('POST Error:', error);
-    });
-
-*/
