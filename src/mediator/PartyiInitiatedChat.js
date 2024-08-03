@@ -8,6 +8,8 @@ import {
     AppBar,
     Toolbar,
     Paper,
+    Button,
+    Modal,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import DiamondIcon from '@mui/icons-material/Diamond';
@@ -20,6 +22,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 export default function PartyiInitiatedChat() {
     const navigate = useNavigate();
     const { conversation_id } = useParams();
+    const [modalOpen, setModalOpen] = useState(false);
+    const [domain, setDomain] = useState("");
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState('');
     const [error, setError] = useState(null);
@@ -50,7 +54,7 @@ export default function PartyiInitiatedChat() {
         console.log(fingerprint)
         if(conversationId !== null && fingerprint !== null){
             console.log("Make list all service call")
-            let url = 'http://localhost:8000/mediatorai/stage/conversation/show/'+conversationId;
+            let url = domain+'/mediatorai/stage/conversation/show/'+conversationId;
             let data = {
                 "fingerprint" : fingerprint
             }
@@ -79,7 +83,7 @@ export default function PartyiInitiatedChat() {
             console.log("Make main service call")
             makeServiceCall();
         }
-    }, []);
+    }, [domain]);
 
     useEffect(() => {
         if (messagesEndRef.current) {
@@ -91,7 +95,7 @@ export default function PartyiInitiatedChat() {
         console.log('Sending msg- API call : ', message);
         let conversationId = (conversation_id === null || conversation_id === undefined || conversation_id === "") ? null : conversation_id
         let fingerprint = SessionHandler.getSessionItem('fingerprint');
-        let url = 'http://localhost:8000/mediatorai/stage/conversation/';
+        let url = domain+'/mediatorai/stage/conversation/';
         if (conversationId != null) {
             url = url + conversationId;
         }
@@ -138,7 +142,9 @@ export default function PartyiInitiatedChat() {
                                 {' '}
                                 &nbsp;&nbsp;Mediator AI{' '}
                             </Typography>
+
                             <Box sx={{ flexGrow: 1 }} />
+                            <Button variant="contained" onClick={()=>{setModalOpen(true)}} sx={{ marginLeft: '10px' }}>Update URL</Button>
                             <Face2Icon fontSize={'large'} sx={{ marginLeft: '10px' }} />
                         </Toolbar>
                     </AppBar>
@@ -225,6 +231,45 @@ export default function PartyiInitiatedChat() {
                     </Box>
                 </Paper>
             </Box>
+
+
+            <Modal
+                open={modalOpen}
+                onClose={()=>{setModalOpen(false)}}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: 400,
+                        bgcolor: 'background.paper',
+                        border: '2px solid #000',
+                        boxShadow: 24,
+                        p: 4,
+                    }}
+                >
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Enter Backend URL
+                    </Typography>
+                    <TextField
+                        id="outlined-basic"
+                        variant="outlined"
+                        value={domain}
+                        onChange={(e)=>{setDomain(e.target.value)}}
+                        fullWidth
+                        sx={{ marginBottom: '20px' }}
+                    />
+                    <Button variant="contained" onClick={()=>{setModalOpen(false)}}>
+                        Submit
+                    </Button>
+                </Box>
+            </Modal>
+
+
         </Container>
     );
 }
