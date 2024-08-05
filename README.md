@@ -5,7 +5,7 @@ apt-get install -y nodejs
 
 # yarn install
 
-npm install -g pm2
+npm install -g pm2;
 npm install -g yarn
 
 # yarn start
