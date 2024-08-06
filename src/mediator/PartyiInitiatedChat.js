@@ -113,7 +113,7 @@ export default function PartyiInitiatedChat() {
             fingerprint: fingerprint,
             user_message: message,
         };
-        console.log(data);
+        console.log("Request Data : ",url, data);
         ApiService.postRequest(url, data)
             .then((response) => {
                 SessionHandler.setSessionItem('fingerprint', response['data']['fingerprint']);
@@ -305,7 +305,7 @@ export default function PartyiInitiatedChat() {
                         fullWidth
                         sx={{ marginBottom: '20px' }}
                     />
-                    <Button variant="contained" onClick={()=>{setDomain(tempDomain); setModalOpen(false);}}>
+                    <Button variant="contained" onClick={()=>{setDomain(tempDomain.trim()); setModalOpen(false);}}>
                         Submit
                     </Button>
                 </Box>

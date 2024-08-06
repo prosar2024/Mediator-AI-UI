@@ -40,10 +40,13 @@ export default class ApiService {
                 headers: ApiService.headers,
                 body: JSON.stringify(requestData),
             });
+            console.log('Response:', response);
             if (!response.ok) {
                 throw new Error('Network response was not ok ' + response.statusText);
             }
             const data = await response.json();
+            
+                
             return data;
         } catch (error) {
             console.error('Error making POST request:', error);
