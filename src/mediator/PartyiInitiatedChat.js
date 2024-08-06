@@ -23,6 +23,7 @@ export default function PartyiInitiatedChat() {
     const navigate = useNavigate();
     const { conversation_id } = useParams();
     const [modalOpen, setModalOpen] = useState(false);
+    const [tempDomain, setTempDomain] = useState("");
     const [domain, setDomain] = useState("");
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState('');
@@ -48,6 +49,13 @@ export default function PartyiInitiatedChat() {
     }
 
     useEffect(() => {
+        if(domain === "" || domain === null){
+            setModalOpen(true)
+            return
+        }else{
+            setModalOpen(false)
+        }
+
         let conversationId = (conversation_id === null || conversation_id === undefined || conversation_id === "") ? null : conversation_id
         let fingerprint = SessionHandler.getSessionItem('fingerprint');
         console.log(conversationId)
@@ -258,12 +266,12 @@ export default function PartyiInitiatedChat() {
                     <TextField
                         id="outlined-basic"
                         variant="outlined"
-                        value={domain}
-                        onChange={(e)=>{setDomain(e.target.value)}}
+                        value={tempDomain}
+                        onChange={(e)=>{setTempDomain(e.target.value)}}
                         fullWidth
                         sx={{ marginBottom: '20px' }}
                     />
-                    <Button variant="contained" onClick={()=>{setModalOpen(false)}}>
+                    <Button variant="contained" onClick={()=>{setDomain(tempDomain); setModalOpen(false);}}>
                         Submit
                     </Button>
                 </Box>
