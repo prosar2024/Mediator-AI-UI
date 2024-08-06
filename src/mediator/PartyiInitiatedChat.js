@@ -38,12 +38,13 @@ export default function PartyiInitiatedChat() {
         }
     };
 
-    function appendMessageToUI(msg, isSender) {
+    function appendMessageToUI(msg, isSender, isFile=false) {
         const newMessage = {
             id: messages.length + 5,
             name: isSender ? 'User' : 'AI',
             message: msg,
             isSender: isSender,
+            isFileUpload : isFile,
         };
         setMessages((prevMessages) => [...prevMessages, newMessage]);
     }
@@ -78,6 +79,7 @@ export default function PartyiInitiatedChat() {
                         name: eachMsg.role === "user" ? 'User' : 'AI',
                         message: eachMsg.content,
                         isSender: eachMsg.role === "user",
+                        isFileUpload : eachMsg.request_fileupload
                     })
                 }
                 setMessages(content)
@@ -120,7 +122,8 @@ export default function PartyiInitiatedChat() {
                     navigate('/pchat/'+response['data']['conversation_id']);
                 }
                 let aiMsg = response['data']['message'];
-                appendMessageToUI(aiMsg, false);
+                let isFileUpload = response['data']['request_fileupload'];
+                appendMessageToUI(aiMsg, false, isFileUpload);
             })
             .catch((err) => {
                 console.error('POST Error:', err);
@@ -196,17 +199,48 @@ export default function PartyiInitiatedChat() {
                                     }}
                                 >
                                     {!msg.isSender && <Face3Icon fontSize={'large'} sx={{ padding: '2px', marginRight: '10px' }} />}
-                                    <Box key={"inner"+msg.id+msg.name}
-                                        sx={{
-                                            backgroundColor: msg.isSender ? '#cce4ff' : '#f1f1f1',
-                                            padding: '10px',
-                                            borderRadius: '10px',
-                                            maxWidth: '70%',
-                                            boxShadow: 1,
-                                        }}
-                                    >
-                                        <Typography variant="body2">{msg.message}</Typography>
-                                    </Box>
+                                    
+                                    {!msg.isFileUpload &&
+                                        <Box key={"inner"+msg.id+msg.name}
+                                            sx={{
+                                                backgroundColor: msg.isSender ? '#cce4ff' : '#f1f1f1',
+                                                padding: '10px',
+                                                borderRadius: '10px',
+                                                maxWidth: '70%',
+                                                boxShadow: 1,
+                                            }}
+                                        >
+                                            <Typography variant="body2">{msg.message}</Typography>
+                                        </Box>
+                                    }
+
+                                    {msg.isFileUpload &&
+                                        <Box key={"inner"+msg.id+msg.name}
+                                            sx={{
+                                                backgroundColor: msg.isSender ? '#cce4ff' : '#f1f1f1',
+                                                padding: '10px',
+                                                borderRadius: '10px',
+                                                maxWidth: '70%',
+                                                boxShadow: 1,
+                                            }}
+                                        >
+                                            <Typography variant="body2">{msg.message}</Typography> <br/>
+                                            <input
+                                                accept="*"
+                                                style={{ display: 'none' }}
+                                                id="file-upload"
+                                                multiple
+                                                type="file"
+                                                sx={{ backgroundColor: 'ash' }}
+                                            />
+                                            <label htmlFor="file-upload">
+                                                <Button variant="contained" component="span" sx={{ backgroundColor: 'ash' }}>
+                                                    Upload file(s)
+                                                </Button>
+                                            </label>
+                                        </Box>
+                                    }
+                                    
                                     {msg.isSender && <Face2Icon fontSize={'large'} sx={{ padding: '2px', marginLeft: '10px' }} />}
                                 </Box>
                             ))}
