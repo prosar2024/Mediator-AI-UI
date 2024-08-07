@@ -200,31 +200,19 @@ export default function PartyiInitiatedChat() {
                                 >
                                     {!msg.isSender && <Face3Icon fontSize={'large'} sx={{ padding: '2px', marginRight: '10px' }} />}
                                     
-                                    {!msg.isFileUpload &&
-                                        <Box key={"inner"+msg.id+msg.name}
-                                            sx={{
-                                                backgroundColor: msg.isSender ? '#cce4ff' : '#f1f1f1',
-                                                padding: '10px',
-                                                borderRadius: '10px',
-                                                maxWidth: '70%',
-                                                boxShadow: 1,
-                                            }}
-                                        >
-                                            <Typography variant="body2">{msg.message}</Typography>
-                                        </Box>
-                                    }
-
-                                    {msg.isFileUpload &&
-                                        <Box key={"inner"+msg.id+msg.name}
-                                            sx={{
-                                                backgroundColor: msg.isSender ? '#cce4ff' : '#f1f1f1',
-                                                padding: '10px',
-                                                borderRadius: '10px',
-                                                maxWidth: '70%',
-                                                boxShadow: 1,
-                                            }}
-                                        >
-                                            <Typography variant="body2">{msg.message}</Typography> <br/>
+                                    <Box key={"inner"+msg.id+msg.name}
+                                        sx={{
+                                            backgroundColor: msg.isSender ? '#cce4ff' : '#f1f1f1',
+                                            padding: '10px',
+                                            borderRadius: '10px',
+                                            maxWidth: '70%',
+                                            boxShadow: 1,
+                                        }}
+                                    >
+                                        <Typography variant="body2">{msg.message}</Typography>
+                                        {msg.isFileUpload &&
+                                        <>
+                                            <br/>
                                             <input
                                                 accept="*"
                                                 style={{ display: 'none' }}
@@ -238,9 +226,11 @@ export default function PartyiInitiatedChat() {
                                                     Upload file(s)
                                                 </Button>
                                             </label>
-                                        </Box>
-                                    }
-                                    
+                                        </>
+                                        }
+                                    </Box>
+                                
+                                
                                     {msg.isSender && <Face2Icon fontSize={'large'} sx={{ padding: '2px', marginLeft: '10px' }} />}
                                 </Box>
                             ))}
