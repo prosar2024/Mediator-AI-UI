@@ -18,10 +18,12 @@ import Face2Icon from '@mui/icons-material/Face2';
 import ApiService from '../util/Service';
 import SessionHandler from '../util/SessionHandler';
 import { useNavigate, useParams } from 'react-router-dom';
+import FileUploadModal from './FileUploadModal';
 
 export default function PartyiInitiatedChat() {
     const navigate = useNavigate();
     const { conversation_id } = useParams();
+    const [fileUploadModalOpen, setFileUploadModalOpen] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [tempDomain, setTempDomain] = useState("");
     const [domain, setDomain] = useState("");
@@ -213,19 +215,9 @@ export default function PartyiInitiatedChat() {
                                         {msg.isFileUpload &&
                                         <>
                                             <br/>
-                                            <input
-                                                accept="*"
-                                                style={{ display: 'none' }}
-                                                id="file-upload"
-                                                multiple
-                                                type="file"
-                                                sx={{ backgroundColor: 'ash' }}
-                                            />
-                                            <label htmlFor="file-upload">
-                                                <Button variant="contained" component="span" sx={{ backgroundColor: 'ash' }}>
-                                                    Upload file(s)
-                                                </Button>
-                                            </label>
+                                            <Button onClick={e=>{setFileUploadModalOpen(true)}} variant="contained" component="span" sx={{ backgroundColor: 'ash' }}>
+                                                Upload file(s)
+                                            </Button>
                                         </>
                                         }
                                     </Box>
@@ -301,6 +293,7 @@ export default function PartyiInitiatedChat() {
                 </Box>
             </Modal>
 
+            <FileUploadModal modalOpen={fileUploadModalOpen} setModalOpen={setFileUploadModalOpen}/>
 
         </Container>
     );
