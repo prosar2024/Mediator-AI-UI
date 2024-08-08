@@ -156,7 +156,7 @@ export default function PartyiInitiatedChat() {
                 overflow: 'hidden',
             }}
         >
-            <Box sx={{ width: '65%', display: 'flex', justifyContent: 'center', height: '100%' }}>
+            <Box sx={{ width: { xs: '100%', sm: '80%', md: '65%'}, display: 'flex', justifyContent: 'center', height: '100%' }}>
                 <Paper elevation={3} sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, height: '100%', width: '100%' }}>
                     <AppBar position="static" sx={{ backgroundColor: '#fff', color: '#000' }}>
                         <Toolbar>
