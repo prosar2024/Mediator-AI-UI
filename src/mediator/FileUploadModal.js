@@ -17,39 +17,18 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useTheme, useMediaQuery } from '@mui/material';
+import { URLS } from '../util/Constants';
+import ApiService from '../util/Service';
+import SessionHandler from '../util/SessionHandler';
 
-async function uploadFile(file, description) {
-    const base64File = await convertToBase64(file);
-    const payload = {
-        fileName: file.name,
-        description: description,
-        file: base64File
-    };
-    const response = await fetch('/api/upload', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    });
-    return response.ok;
-}
-
-function convertToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = (error) => reject(error);
-    });
-}
-
-export default function FileUploadModal({ modalOpen, setModalOpen }) {
+export default function FileUploadModal({ modalOpen, setModalOpen, conversationID, domainUrl, callBackHandler }) {
     const [files, setFiles] = useState([]);
     const [descriptions, setDescriptions] = useState({});
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState({});
     const [uploaded, setUploaded] = useState({});
+    const [conversationId, setConversationId] = useState(conversationID);
+    const [domain, setDomain] = useState(domainUrl);
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -64,6 +43,38 @@ export default function FileUploadModal({ modalOpen, setModalOpen }) {
         setDescriptions(newDescriptions);
     };
 
+
+    async function uploadFile(file, description) {
+        const base64File = await convertToBase64(file);
+        let fingerprint = SessionHandler.getSessionItem('fingerprint');
+        const payload = {
+            fingerprint : fingerprint,
+            filename: file.name,
+            description: description,
+            file_base64: base64File
+        };
+        console.log("Request Payload : ", payload);
+        console.log(domainUrl , URLS.STAGING_FILE_UPLOAD_URL , conversationID)
+        return ApiService.postRequest(domainUrl + URLS.STAGING_FILE_UPLOAD_URL + conversationID, payload)
+            .then((response) => {
+                console.log("Response : ", response);
+                return true;
+            })
+            .catch((err) => {
+                console.error('POST Error:', err);
+                return false;
+            });
+    }
+    
+    function convertToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = (error) => reject(error);
+        });
+    }
+    
     const handleRemoveFile = (index) => {
         const newFiles = files.filter((_, i) => i !== index);
         setFiles(newFiles);
@@ -95,21 +106,32 @@ export default function FileUploadModal({ modalOpen, setModalOpen }) {
 
     const handleSubmit = async () => {
         setUploading(true);
+        let uploadResults = [];
         for (let i = 0; i < files.length; i++) {
+            if (uploaded[i] === true) {
+                // Skip already uploaded files
+                continue;
+            }
             const file = files[i];
             const description = descriptions[i] || '';
             setProgress(prev => ({ ...prev, [i]: 0 }));
 
             const success = await uploadFile(file, description);
-
+            console.log("uploaded status : ", success);
             if (success) {
                 setUploaded(prev => ({ ...prev, [i]: true }));
                 setProgress(prev => ({ ...prev, [i]: 100 }));
+                uploadResults.push({ name: file.name, description: description });
             } else {
                 setUploaded(prev => ({ ...prev, [i]: false }));
             }
         }
         setUploading(false);
+        handleRemoveAllFiles();
+        if (callBackHandler) {
+            callBackHandler(uploadResults);
+            setModalOpen(false);
+        }
     };
 
     return (
@@ -196,15 +218,21 @@ export default function FileUploadModal({ modalOpen, setModalOpen }) {
                                                     </IconButton>
                                                 )}
                                             </Box>
-                                            <TextField
-                                                variant="outlined"
-                                                fullWidth
-                                                placeholder="Add a description about the file"
-                                                value={descriptions[index] || ''}
-                                                onChange={handleDescriptionChange(index)}
-                                                sx={{ marginTop: '10px' }}
-                                                disabled={uploading}
-                                            />
+                                            {uploaded[index] === true ? (
+                                                <Typography variant="body2" sx={{ marginTop: '10px' }}>
+                                                    {descriptions[index]}
+                                                </Typography>
+                                            ) : (
+                                                <TextField
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    placeholder="Add a description about the file"
+                                                    value={descriptions[index] || ''}
+                                                    onChange={handleDescriptionChange(index)}
+                                                    sx={{ marginTop: '10px' }}
+                                                    disabled={uploading}
+                                                />
+                                            )}
                                             {uploading && (
                                                 <LinearProgress
                                                     variant="determinate"

@@ -19,6 +19,7 @@ import ApiService from '../util/Service';
 import SessionHandler from '../util/SessionHandler';
 import { useNavigate, useParams } from 'react-router-dom';
 import FileUploadModal from './FileUploadModal';
+import { URLS } from '../util/Constants';
 
 export default function PartyiInitiatedChat() {
     const navigate = useNavigate();
@@ -40,22 +41,22 @@ export default function PartyiInitiatedChat() {
         }
     };
 
-    function appendMessageToUI(msg, isSender, isFile=false) {
+    function appendMessageToUI(msg, isSender, isFile = false) {
         const newMessage = {
             id: messages.length + 5,
             name: isSender ? 'User' : 'AI',
             message: msg,
             isSender: isSender,
-            isFileUpload : isFile,
+            isFileUpload: isFile,
         };
         setMessages((prevMessages) => [...prevMessages, newMessage]);
     }
 
     useEffect(() => {
-        if(domain === "" || domain === null){
+        if (domain === "" || domain === null) {
             setModalOpen(true)
             return
-        }else{
+        } else {
             setModalOpen(false)
         }
 
@@ -63,35 +64,35 @@ export default function PartyiInitiatedChat() {
         let fingerprint = SessionHandler.getSessionItem('fingerprint');
         console.log(conversationId)
         console.log(fingerprint)
-        if(conversationId !== null && fingerprint !== null){
+        if (conversationId !== null && fingerprint !== null) {
             console.log("Make list all service call")
-            let url = domain+'/mediatorai/stage/conversation/show/'+conversationId;
+            let url = domain + URLS.STAGING_CONVERSATION_LIST_MESSAGES_URL + conversationId;
             let data = {
-                "fingerprint" : fingerprint
+                "fingerprint": fingerprint
             }
             ApiService.postRequest(url, data)
-            .then((response) => {
-                console.log(response['data'])
-            
-                let content = []
-                let i=1
-                for(let eachMsg of response["data"]){
-                    content.push({
-                        id: i++,
-                        name: eachMsg.role === "user" ? 'User' : 'AI',
-                        message: eachMsg.content,
-                        isSender: eachMsg.role === "user",
-                        isFileUpload : eachMsg.request_fileupload
-                    })
-                }
-                setMessages(content)
-                setError(null);
-            })
-            .catch((err) => {
-                console.error('POST Error:', err);
-                setError(err["message"])
-            });
-        }else{
+                .then((response) => {
+                    console.log(response['data'])
+
+                    let content = []
+                    let i = 1
+                    for (let eachMsg of response["data"]) {
+                        content.push({
+                            id: i++,
+                            name: eachMsg.role === "user" ? 'User' : 'AI',
+                            message: eachMsg.content,
+                            isSender: eachMsg.role === "user",
+                            isFileUpload: eachMsg.request_fileupload
+                        })
+                    }
+                    setMessages(content)
+                    setError(null);
+                })
+                .catch((err) => {
+                    console.error('POST Error:', err);
+                    setError(err["message"])
+                });
+        } else {
             console.log("Make main service call")
             makeServiceCall();
         }
@@ -103,11 +104,20 @@ export default function PartyiInitiatedChat() {
         }
     }, [messages]);
 
+    function fileModalCallBackHandler(filesUploaded) {
+        console.log("Files uploaded ", filesUploaded)
+        filesUploaded.forEach(fileData => {
+            let content = `File : <b>${fileData.name}</b> uploaded<br>${fileData.description}`;
+            appendMessageToUI(content, true)
+        })
+
+    }
+
     function makeServiceCall(message = null) {
         console.log('Sending msg- API call : ', message);
         let conversationId = (conversation_id === null || conversation_id === undefined || conversation_id === "") ? null : conversation_id
         let fingerprint = SessionHandler.getSessionItem('fingerprint');
-        let url = domain+'/mediatorai/stage/conversation/';
+        let url = domain + URLS.STAGING_CONVERSATION_URL
         if (conversationId != null) {
             url = url + conversationId;
         }
@@ -115,13 +125,13 @@ export default function PartyiInitiatedChat() {
             fingerprint: fingerprint,
             user_message: message,
         };
-        console.log("Request Data : ",url, data);
+        console.log("Request Data : ", url, data);
         ApiService.postRequest(url, data)
             .then((response) => {
                 SessionHandler.setSessionItem('fingerprint', response['data']['fingerprint']);
                 console.log('POST Response received:', response);
-                if(conversationId === null){
-                    navigate('/pchat/'+response['data']['conversation_id']);
+                if (conversationId === null) {
+                    navigate('/pchat/' + response['data']['conversation_id']);
                 }
                 let aiMsg = response['data']['message'];
                 let isFileUpload = response['data']['request_fileupload'];
@@ -157,7 +167,7 @@ export default function PartyiInitiatedChat() {
                             </Typography>
 
                             <Box sx={{ flexGrow: 1 }} />
-                            <Button variant="contained" onClick={()=>{setModalOpen(true)}} sx={{ marginLeft: '10px' }}>Update URL</Button>
+                            <Button variant="contained" onClick={() => { setModalOpen(true) }} sx={{ marginLeft: '10px' }}>Update URL</Button>
                             <Face2Icon fontSize={'large'} sx={{ marginLeft: '10px' }} />
                         </Toolbar>
                     </AppBar>
@@ -190,9 +200,9 @@ export default function PartyiInitiatedChat() {
                                 },
                             }}
                         >
-                            {messages.map((msg) => (
+                            {messages.map((msg, index) => (
                                 <Box
-                                    key={"outer"+msg.id+msg.name}
+                                    key={"outer" + msg.id + index}  // Ensure unique key by combining id and index
                                     sx={{
                                         display: 'flex',
                                         marginBottom: '10px',
@@ -201,8 +211,8 @@ export default function PartyiInitiatedChat() {
                                     }}
                                 >
                                     {!msg.isSender && <Face3Icon fontSize={'large'} sx={{ padding: '2px', marginRight: '10px' }} />}
-                                    
-                                    <Box key={"inner"+msg.id+msg.name}
+
+                                    <Box key={"inner" + msg.id + index}  // Ensure unique key by combining id and index
                                         sx={{
                                             backgroundColor: msg.isSender ? '#cce4ff' : '#f1f1f1',
                                             padding: '10px',
@@ -211,29 +221,28 @@ export default function PartyiInitiatedChat() {
                                             boxShadow: 1,
                                         }}
                                     >
-                                        <Typography variant="body2">{msg.message}</Typography>
+                                        <Typography variant="body2" dangerouslySetInnerHTML={{ __html: msg.message }} />
                                         {msg.isFileUpload &&
-                                        <>
-                                            <br/>
-                                            <Button onClick={e=>{setFileUploadModalOpen(true)}} variant="contained" component="span" sx={{ backgroundColor: 'ash' }}>
-                                                Upload file(s)
-                                            </Button>
-                                        </>
+                                            <>
+                                                <br />
+                                                <Button onClick={e => { setFileUploadModalOpen(true) }} variant="contained" component="span" sx={{ backgroundColor: 'ash' }}>
+                                                    Upload file(s)
+                                                </Button>
+                                            </>
                                         }
                                     </Box>
-                                
-                                
+
                                     {msg.isSender && <Face2Icon fontSize={'large'} sx={{ padding: '2px', marginLeft: '10px' }} />}
                                 </Box>
                             ))}
                             <div ref={messagesEndRef} />
-                        
+
                             {error &&
-                            <center>{error}</center>
+                                <center>{error}</center>
                             }
                         </Box>
-                        
-                        
+
+
                         <Box sx={{ padding: '10px', borderTop: '1px solid #ddd', display: 'flex', alignItems: 'center' }}>
                             <TextField
                                 fullWidth
@@ -259,7 +268,7 @@ export default function PartyiInitiatedChat() {
 
             <Modal
                 open={modalOpen}
-                onClose={()=>{setModalOpen(false)}}
+                onClose={() => { setModalOpen(false) }}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
@@ -283,17 +292,22 @@ export default function PartyiInitiatedChat() {
                         id="outlined-basic"
                         variant="outlined"
                         value={tempDomain}
-                        onChange={(e)=>{setTempDomain(e.target.value)}}
+                        onChange={(e) => { setTempDomain(e.target.value) }}
                         fullWidth
                         sx={{ marginBottom: '20px' }}
                     />
-                    <Button variant="contained" onClick={()=>{setDomain(tempDomain.trim()); setModalOpen(false);}}>
+                    <Button variant="contained" onClick={() => { setDomain(tempDomain.trim()); setModalOpen(false); }}>
                         Submit
                     </Button>
                 </Box>
             </Modal>
 
-            <FileUploadModal modalOpen={fileUploadModalOpen} setModalOpen={setFileUploadModalOpen}/>
+            <FileUploadModal 
+                modalOpen={fileUploadModalOpen} 
+                setModalOpen={setFileUploadModalOpen} 
+                conversationID={conversation_id} 
+                domainUrl = {domain}
+                callBackHandler={fileModalCallBackHandler} />
 
         </Container>
     );
