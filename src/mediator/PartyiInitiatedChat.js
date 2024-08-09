@@ -20,11 +20,17 @@ import SessionHandler from '../util/SessionHandler';
 import { useNavigate, useParams } from 'react-router-dom';
 import FileUploadModal from './FileUploadModal';
 import { URLS } from '../util/Constants';
+import PartiesInvolvedModal from './PartiesInvolvedModal';
+import PeopleIcon from '@mui/icons-material/People';
+import HttpIcon from '@mui/icons-material/Http';
+import Party1InfoModal from './Party1InfoModal';
 
 export default function PartyiInitiatedChat() {
     const navigate = useNavigate();
     const { conversation_id } = useParams();
     const [fileUploadModalOpen, setFileUploadModalOpen] = useState(false);
+    const [partiesInvolvedModalOpen, setPartiesInvolvedModalOpen] = useState(false);
+    const [thisUserInfoModalOpen, setThisUserInfoModalOpen] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [tempDomain, setTempDomain] = useState("");
     const [domain, setDomain] = useState("");
@@ -154,6 +160,14 @@ export default function PartyiInitiatedChat() {
             });
     }
 
+    function partiesInvolvedCallBackHandler(records){
+        console.log("Return from Parties Involved : ", records)
+    }
+
+    function thisUserInfoCallBackHandler(response){
+        console.log("This user info : ", response)
+    }
+
     return (
         <Container
             maxWidth={false}
@@ -178,8 +192,18 @@ export default function PartyiInitiatedChat() {
                             </Typography>
 
                             <Box sx={{ flexGrow: 1 }} />
-                            <Button variant="contained" onClick={() => { setModalOpen(true) }} sx={{ marginLeft: '10px' }}>Update URL</Button>
-                            <Face2Icon fontSize={'large'} sx={{ marginLeft: '10px' }} />
+                            {/* <Button variant="contained" onClick={() => { setPartiesInvolvedModalOpen(true) }} sx={{ marginLeft: '10px' }}>Add Parties</Button>
+                            <Button variant="contained" onClick={() => { setModalOpen(true) }} sx={{ marginLeft: '10px' }}>Update URL</Button> */}
+
+                            <IconButton onClick={() => { setModalOpen(true) }} sx={{ marginLeft: '10px' }}>
+                                <HttpIcon />
+                            </IconButton>
+                            <IconButton onClick={() => { setPartiesInvolvedModalOpen(true) }} sx={{ marginLeft: '10px' }}>
+                                <PeopleIcon />
+                            </IconButton>
+                            <IconButton onClick={() => { setThisUserInfoModalOpen(true) }} sx={{ marginLeft: '10px' }}>
+                                <Face2Icon />
+                            </IconButton>
                         </Toolbar>
                     </AppBar>
                     <Box
@@ -319,6 +343,20 @@ export default function PartyiInitiatedChat() {
                 conversationID={conversation_id} 
                 domainUrl = {domain}
                 callBackHandler={fileModalCallBackHandler} />
+
+            <PartiesInvolvedModal 
+                modalOpen={partiesInvolvedModalOpen} 
+                setModalOpen={setPartiesInvolvedModalOpen} 
+                conversationID={conversation_id} 
+                domainUrl = {domain}
+                callBackHandler={partiesInvolvedCallBackHandler} />
+
+            <Party1InfoModal 
+                modalOpen={thisUserInfoModalOpen} 
+                setModalOpen={setThisUserInfoModalOpen} 
+                conversationID={conversation_id} 
+                domainUrl = {domain}
+                callBackHandler={thisUserInfoCallBackHandler} />
 
         </Container>
     );
