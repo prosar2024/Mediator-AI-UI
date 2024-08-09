@@ -111,6 +111,17 @@ export default function PartyiInitiatedChat() {
             appendMessageToUI(content, true)
         })
 
+        let url = domain + URLS.STAGING_FILE_UPLOAD_COMPLETION_NOTIFY_URL + conversation_id;
+        let data = { fingerprint: SessionHandler.getSessionItem('fingerprint') }
+        console.log("Request Data : ", url, data);
+        ApiService.postRequest(url, data)
+            .then((response) => {
+               console.log("File upload ack response : ",response) 
+            })
+            .catch((err) => {
+                console.error('POST Error:', err);
+                setError(err["message"])
+            });
     }
 
     function makeServiceCall(message = null) {
