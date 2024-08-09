@@ -9,5 +9,5 @@ npm install -g pm2;
 npm install -g yarn
 
 # yarn start
-pm2 start yarn --name chat -- start
+yarn install ; pm2 start yarn --name chat -- start
 
