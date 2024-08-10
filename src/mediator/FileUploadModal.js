@@ -97,6 +97,8 @@ export default function FileUploadModal({ modalOpen, setModalOpen, conversationI
         setDescriptions({});
         setProgress({});
         setUploaded({});
+        setModalOpen(false);
+        callBackHandler([]);
     };
 
     const handleClose = () => {
@@ -163,14 +165,24 @@ export default function FileUploadModal({ modalOpen, setModalOpen, conversationI
                     }}
                 >
                     <Typography id="modal-modal-title" variant="h6" component="h2">
-                        Upload relevant files
-                    </Typography>
+                        Upload Relevant Files
+                    </Typography><br/>
+                    {files.length == 0 &&
+                    <Button
+                        variant="contained"
+                        component="label"
+                        color={'warning'}
+                        onClick={()=>{setModalOpen(false); callBackHandler([]); }}
+                    >
+                        No files to upload
+                    </Button>
+                    }
                     <Button
                         variant="contained"
                         component="label"
                         disabled={uploading}
                     >
-                        Upload Files
+                        Select Files
                         <input
                             type="file"
                             hidden
@@ -257,15 +269,9 @@ export default function FileUploadModal({ modalOpen, setModalOpen, conversationI
                                 sx={{ marginRight: '10px' }}
                                 disabled={uploading}
                             >
-                                Delete All
+                                Ignore, No files to upload 
                             </Button>
-                            <Button
-                                variant="contained"
-                                onClick={handleClose}
-                                disabled={uploading}
-                            >
-                                Close
-                            </Button>
+                            
                         </Box>
                         {!uploading && (
                             <Button

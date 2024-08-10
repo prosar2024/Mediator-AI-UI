@@ -19,16 +19,17 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useTheme, useMediaQuery } from '@mui/material';
 
-export default function PartiesInvolvedModal({ modalOpen, setModalOpen, callBackHandler }) {
+export default function PartiesInvolvedModal({ modalOpen, setModalOpen, callBackHandler, descriptions = [] }) {
     const [rows, setRows] = useState([]);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     useEffect(() => {
         if (modalOpen && rows.length === 0) {
-            handleAddRow();
+            const initialRows = descriptions.map(description => ({ name: description, email: '', role: '' }));
+            setRows(initialRows);
         }
-    }, [modalOpen]);
+    }, [modalOpen, descriptions]);
 
     const handleAddRow = () => {
         setRows([...rows, { name: '', email: '', role: '' }]);
@@ -109,53 +110,62 @@ export default function PartiesInvolvedModal({ modalOpen, setModalOpen, callBack
                             </TableHead>
                             <TableBody>
                                 {rows.map((row, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>
-                                            <TextField
-                                                variant="outlined"
-                                                fullWidth
-                                                value={row.name}
-                                                onChange={handleChange(index, 'name')}
-                                                placeholder="Enter Name"
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <TextField
-                                                variant="outlined"
-                                                fullWidth
-                                                value={row.email}
-                                                onChange={handleChange(index, 'email')}
-                                                placeholder="Enter Email"
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Select
-                                                fullWidth
-                                                value={row.role}
-                                                onChange={handleChange(index, 'role')}
-                                                displayEmpty
-                                            >
-                                                <MenuItem value="">
-                                                    <em>Select Role</em>
-                                                </MenuItem>
-                                                <MenuItem value="Witness">Witness</MenuItem>
-                                                <MenuItem value="Accused">Accused</MenuItem>
-                                                <MenuItem value="Other">Other</MenuItem>
-                                            </Select>
-                                        </TableCell>
-                                        <TableCell>
-                                            <IconButton
-                                                onClick={() => handleRemoveRow(index)}
-                                                sx={{
-                                                    '&:hover': {
-                                                        color: 'red',
-                                                    },
-                                                }}
-                                            >
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
+                                    <React.Fragment key={index}>
+                                        <TableRow>
+                                            <TableCell colSpan={4}>
+                                                <Typography variant="body2" color="textSecondary">
+                                                    Party {index + 1}: {descriptions[index] || 'Please fill in the details below.'}
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>
+                                                <TextField
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    value={row.name}
+                                                    onChange={handleChange(index, 'name')}
+                                                    placeholder="Enter Name"
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <TextField
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    value={row.email}
+                                                    onChange={handleChange(index, 'email')}
+                                                    placeholder="Enter Email"
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Select
+                                                    fullWidth
+                                                    value={row.role}
+                                                    onChange={handleChange(index, 'role')}
+                                                    displayEmpty
+                                                >
+                                                    <MenuItem value="">
+                                                        <em>Select Role</em>
+                                                    </MenuItem>
+                                                    <MenuItem value="Witness">Witness</MenuItem>
+                                                    <MenuItem value="Accused">Accused</MenuItem>
+                                                    <MenuItem value="Other">Other</MenuItem>
+                                                </Select>
+                                            </TableCell>
+                                            <TableCell>
+                                                <IconButton
+                                                    onClick={() => handleRemoveRow(index)}
+                                                    sx={{
+                                                        '&:hover': {
+                                                            color: 'red',
+                                                        },
+                                                    }}
+                                                >
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    </React.Fragment>
                                 ))}
                             </TableBody>
                         </Table>

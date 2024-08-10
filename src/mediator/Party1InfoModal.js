@@ -34,7 +34,7 @@ export default function Party1InfoModal({ modalOpen, setModalOpen, callBackHandl
             role
         };
         console.log(formData);
-        // callBackHandler(formData);
+        callBackHandler(formData);
         setModalOpen(false);
     };
 
@@ -63,7 +63,7 @@ export default function Party1InfoModal({ modalOpen, setModalOpen, callBackHandl
                 }}
             >
                 <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ marginBottom: '20px' }}>
-                    Your Information
+                    Lets start with your details.
                 </Typography>
                 <TextField
                     variant="outlined"

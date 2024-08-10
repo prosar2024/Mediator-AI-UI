@@ -23,13 +23,16 @@ import { URLS } from '../util/Constants';
 import PartiesInvolvedModal from './PartiesInvolvedModal';
 import PeopleIcon from '@mui/icons-material/People';
 import HttpIcon from '@mui/icons-material/Http';
+import SourceIcon from '@mui/icons-material/Source';
 import Party1InfoModal from './Party1InfoModal';
 
 export default function PartyiInitiatedChat() {
     const navigate = useNavigate();
     const { conversation_id } = useParams();
     const [fileUploadModalOpen, setFileUploadModalOpen] = useState(false);
+    const [partiesIdentified, setPartiesIdentified] = useState([]);
     const [partiesInvolvedModalOpen, setPartiesInvolvedModalOpen] = useState(false);
+    const [thisUserInfoCollected, setThisUserInfoCollected] = useState(false);
     const [thisUserInfoModalOpen, setThisUserInfoModalOpen] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [tempDomain, setTempDomain] = useState("");
@@ -63,6 +66,10 @@ export default function PartyiInitiatedChat() {
             setModalOpen(true)
             return
         } else {
+            if(thisUserInfoCollected === false){
+                setThisUserInfoModalOpen(true)
+                return 
+             }
             setModalOpen(false)
         }
 
@@ -102,6 +109,7 @@ export default function PartyiInitiatedChat() {
             console.log("Make main service call")
             makeServiceCall();
         }
+
     }, [domain]);
 
     useEffect(() => {
@@ -116,18 +124,18 @@ export default function PartyiInitiatedChat() {
             let content = `File : <b>${fileData.name}</b> uploaded<br>${fileData.description}`;
             appendMessageToUI(content, true)
         })
-
-        let url = domain + URLS.STAGING_FILE_UPLOAD_COMPLETION_NOTIFY_URL + conversation_id;
-        let data = { fingerprint: SessionHandler.getSessionItem('fingerprint') }
-        console.log("Request Data : ", url, data);
-        ApiService.postRequest(url, data)
-            .then((response) => {
-               console.log("File upload ack response : ",response) 
-            })
-            .catch((err) => {
-                console.error('POST Error:', err);
-                setError(err["message"])
-            });
+        setPartiesInvolvedModalOpen(true);
+        // let url = domain + URLS.STAGING_FILE_UPLOAD_COMPLETION_NOTIFY_URL + conversation_id;
+        // let data = { fingerprint: SessionHandler.getSessionItem('fingerprint') }
+        // console.log("Request Data : ", url, data);
+        // ApiService.postRequest(url, data)
+        //     .then((response) => {
+        //        console.log("File upload ack response : ",response) 
+        //     })
+        //     .catch((err) => {
+        //         console.error('POST Error:', err);
+        //         setError(err["message"])
+        //     });
     }
 
     function makeServiceCall(message = null) {
@@ -151,8 +159,14 @@ export default function PartyiInitiatedChat() {
                     navigate('/pchat/' + response['data']['conversation_id']);
                 }
                 let aiMsg = response['data']['message'];
-                let isFileUpload = response['data']['request_fileupload'];
-                appendMessageToUI(aiMsg, false, isFileUpload);
+                let isSummary = response['data']['is_summary'];
+                if(isSummary !== true){
+                    appendMessageToUI(aiMsg, false);
+                }else{
+                    console.log("Parties Identified : ", response['data']['parties_identified'])
+                    setPartiesIdentified(response['data']['parties_identified'])
+                    setFileUploadModalOpen(true)
+                }
             })
             .catch((err) => {
                 console.error('POST Error:', err);
@@ -166,6 +180,8 @@ export default function PartyiInitiatedChat() {
 
     function thisUserInfoCallBackHandler(response){
         console.log("This user info : ", response)
+        setThisUserInfoCollected(true);
+        makeServiceCall();
     }
 
     return (
@@ -197,6 +213,9 @@ export default function PartyiInitiatedChat() {
 
                             <IconButton onClick={() => { setModalOpen(true) }} sx={{ marginLeft: '10px' }}>
                                 <HttpIcon />
+                            </IconButton>
+                            <IconButton onClick={() => { setFileUploadModalOpen(true) }} sx={{ marginLeft: '10px' }}>
+                                <SourceIcon />
                             </IconButton>
                             <IconButton onClick={() => { setPartiesInvolvedModalOpen(true) }} sx={{ marginLeft: '10px' }}>
                                 <PeopleIcon />
@@ -349,14 +368,17 @@ export default function PartyiInitiatedChat() {
                 setModalOpen={setPartiesInvolvedModalOpen} 
                 conversationID={conversation_id} 
                 domainUrl = {domain}
-                callBackHandler={partiesInvolvedCallBackHandler} />
+                callBackHandler={partiesInvolvedCallBackHandler} 
+                descriptions = {partiesIdentified}
+                />
 
             <Party1InfoModal 
                 modalOpen={thisUserInfoModalOpen} 
                 setModalOpen={setThisUserInfoModalOpen} 
                 conversationID={conversation_id} 
                 domainUrl = {domain}
-                callBackHandler={thisUserInfoCallBackHandler} />
+                callBackHandler={thisUserInfoCallBackHandler}
+                />
 
         </Container>
     );
