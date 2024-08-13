@@ -30,9 +30,12 @@ export default function PartyiInitiatedChat() {
     const navigate = useNavigate();
     const { conversation_id } = useParams();
     const [fileUploadModalOpen, setFileUploadModalOpen] = useState(false);
+    const [summary, setSummary] = useState("");
+    const [filesUploaded, setFilesUploaded] = useState("");
+    
     const [partiesIdentified, setPartiesIdentified] = useState([]);
     const [partiesInvolvedModalOpen, setPartiesInvolvedModalOpen] = useState(false);
-    const [thisUserInfoCollected, setThisUserInfoCollected] = useState(false);
+    const [thisUserInfoCollected, setThisUserInfoCollected] = useState(true);
     const [thisUserInfoModalOpen, setThisUserInfoModalOpen] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [tempDomain, setTempDomain] = useState("");
@@ -120,10 +123,20 @@ export default function PartyiInitiatedChat() {
 
     function fileModalCallBackHandler(filesUploaded) {
         console.log("Files uploaded ", filesUploaded)
+        let filesContent = `<br><b>Supporting Files: </b>`
+        let indx = 0
         filesUploaded.forEach(fileData => {
             let content = `File : <b>${fileData.name}</b> uploaded<br>${fileData.description}`;
             appendMessageToUI(content, true)
+            filesContent += `<br>${indx+1} : <b>${fileData.name}</b> : ${fileData.description}`;
+            indx = indx+1
         })
+        if(indx > 0){
+            setFilesUploaded(filesContent)
+        }else{
+            setFilesUploaded(`<br><b>Supporting files uploaded`)
+        }
+        
         setPartiesInvolvedModalOpen(true);
         // let url = domain + URLS.STAGING_FILE_UPLOAD_COMPLETION_NOTIFY_URL + conversation_id;
         // let data = { fingerprint: SessionHandler.getSessionItem('fingerprint') }
@@ -166,6 +179,7 @@ export default function PartyiInitiatedChat() {
                     console.log("Parties Identified : ", response['data']['parties_identified'])
                     setPartiesIdentified(response['data']['parties_identified'])
                     setFileUploadModalOpen(true)
+                    setSummary(aiMsg)
                 }
             })
             .catch((err) => {
@@ -175,7 +189,19 @@ export default function PartyiInitiatedChat() {
     }
 
     function partiesInvolvedCallBackHandler(records){
+        console.log("FIles uploaded msg : ",filesUploaded)
+        
         console.log("Return from Parties Involved : ", records)
+        let indx = 0
+        let _partiesInvolved = `<b><br>Parties Involved:</b>`
+        records.forEach(party => {
+            _partiesInvolved += `<br>${indx+1} : <b>${party["name"]}</b>`;
+            indx = indx+1
+        })
+        let finalSummary = `${summary}<br> ${filesUploaded} <br> ${_partiesInvolved}`;
+        console.log("Finak Summary : ",finalSummary)
+
+        appendMessageToUI(finalSummary, false)
     }
 
     function thisUserInfoCallBackHandler(response){
