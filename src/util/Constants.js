@@ -1,4 +1,4 @@
-let BASE_URL = "api.prosartech.com:8000"
+let BASE_URL = "http://api.prosartech.com:8000"
 
 const URLS = {
     
